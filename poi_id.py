@@ -159,7 +159,7 @@ print("\nTesting Decision Tree Classifier:")
 # Split data into training and testing sets for initial evaluation
 # stratify=labels ensures balanced representation of POIs and non-POIs
 features_train, features_test, labels_train, labels_test = train_test_split(
-    features, labels, test_size=0.3, random_state=42, stratify=labels
+    features, labels, test_size=0.2, random_state=42, stratify=labels
 )
 
 # Use StratifiedShuffleSplit for robust cross-validation
@@ -206,46 +206,46 @@ plt.show()
 print("===========================================")
 
 # === MODEL 2: RandomForestClassifier with GridSearchCV ===
-# from sklearn.ensemble import RandomForestClassifier
-# rf_init = RandomForestClassifier(random_state=42, n_estimators=100)
-# rf_init.fit(features_train, labels_train)
-# # Predict on test set
-# predictions = rf_init.predict(features_test)
-# # Calculate performance metrics for best classifier
-# precision = precision_score(labels_test, predictions, zero_division=0)
-# recall = recall_score(labels_test, predictions, zero_division=0)
-# f1 = f1_score(labels_test, predictions, zero_division=0)
-# print(f"Initial RandomForest - Precision: {precision:.3f}, Recall: {recall:.3f}, F1: {f1:.3f}")
+from sklearn.ensemble import RandomForestClassifier
+rf_init = RandomForestClassifier(random_state=42, n_estimators=100)
+rf_init.fit(features_train, labels_train)
+# Predict on test set
+predictions = rf_init.predict(features_test)
+# Calculate performance metrics for best classifier
+precision = precision_score(labels_test, predictions, zero_division=0)
+recall = recall_score(labels_test, predictions, zero_division=0)
+f1 = f1_score(labels_test, predictions, zero_division=0)
+print(f"Initial RandomForest - Precision: {precision:.3f}, Recall: {recall:.3f}, F1: {f1:.3f}")
 
-# print(f"\nTuning Random Forest Classifier...")
-# param_grid_rf = {
-#     'n_estimators': [50, 100, 200],
-#     'max_depth': [None, 5, 10, 20],
-#     'min_samples_split': [2, 5, 10],
-#     'min_samples_leaf': [1, 2, 4]
-# }
-# rf = RandomForestClassifier(random_state=42)
-# grid_rf = GridSearchCV(rf, param_grid_rf,  cv=sss, scoring='f1')
-# grid_rf.fit(features_train, labels_train)
-# best_rf = grid_rf.best_estimator_
-# rf_best_predictions = best_rf.predict(features_test)
-# print("\n=== Random Forest Classification Report ===")
-# print(classification_report(labels_test, rf_best_predictions))
-# print("Best RandomForest params:", grid_rf.best_params_)
-# # Calculate performance metrics for best classifier
-# precision = precision_score(labels_test, predictions, zero_division=0)
-# recall = recall_score(labels_test, predictions, zero_division=0)
-# f1 = f1_score(labels_test, predictions, zero_division=0)
-# print(f"Tuning Precision: {precision:.3f}, Recall: {recall:.3f}, F1: {f1:.3f}")
-# # Display confusion matrix
-# cm = confusion_matrix(labels_test, rf_best_predictions)
-# sns.heatmap(cm, annot=True, fmt='d', cmap='Blues',
-#               xticklabels=['Non-POI', 'POI'], yticklabels=['Non-POI', 'POI'])
-# plt.title('Confusion Matrix for Random Forest')
-# plt.xlabel('Predicted')
-# plt.ylabel('Actual')
-# plt.show()
-# print("===========================================")
+print(f"\nTuning Random Forest Classifier...")
+param_grid_rf = {
+    'n_estimators': [5, 10],
+    'max_depth': [None, 2, 5],
+    'min_samples_split': [2, 5],
+    'min_samples_leaf': [1, 2]
+}
+rf = RandomForestClassifier(random_state=42)
+grid_rf = GridSearchCV(rf, param_grid_rf,  cv=sss, scoring='f1')
+grid_rf.fit(features_train, labels_train)
+best_rf = grid_rf.best_estimator_
+rf_best_predictions = best_rf.predict(features_test)
+print("\n=== Random Forest Classification Report ===")
+print(classification_report(labels_test, rf_best_predictions))
+print("Best RandomForest params:", grid_rf.best_params_)
+# Calculate performance metrics for best classifier
+precision = precision_score(labels_test, predictions, zero_division=0)
+recall = recall_score(labels_test, predictions, zero_division=0)
+f1 = f1_score(labels_test, predictions, zero_division=0)
+print(f"Tuning Precision: {precision:.3f}, Recall: {recall:.3f}, F1: {f1:.3f}")
+# Display confusion matrix
+cm = confusion_matrix(labels_test, rf_best_predictions)
+sns.heatmap(cm, annot=True, fmt='d', cmap='Blues',
+              xticklabels=['Non-POI', 'POI'], yticklabels=['Non-POI', 'POI'])
+plt.title('Confusion Matrix for Random Forest')
+plt.xlabel('Predicted')
+plt.ylabel('Actual')
+plt.show()
+print("===========================================")
 
 # # === MODEL 3: DecisionTree  ===
 dt_init = DecisionTreeClassifier(random_state=42)
@@ -273,8 +273,7 @@ grid_dt = GridSearchCV(
     DecisionTreeClassifier(random_state=42), 
     param_grid_dt, 
     cv=sss, 
-    scoring='f1', 
-    n_jobs=-1  # Use all available CPU cores
+    scoring='f1'
 )
 grid_dt.fit(features_train, labels_train)
 best_dt = grid_dt.best_estimator_ 
@@ -303,7 +302,7 @@ print("===========================================")
 print("\nFinal Evaluation using tester.py:")
 
 # choose best classifier based on F1 score
-clf_list =[best_dt, best_gnb]
+clf_list =[best_dt, best_gnb, best_rf]
 # # Select the best classifier based on F1 score
 clf = max(clf_list, key=lambda x: f1_score(labels_test, x.predict(features_test), zero_division=0))
 print(f"Selected best classifier: {clf.__class__.__name__}")
