@@ -33,7 +33,7 @@ def test_classifier(clf, dataset, feature_list, folds = 1000):
     false_negatives = 0
     true_positives = 0
     false_positives = 0
-    for train_idx, test_idx in cv: 
+    for train_idx, test_idx in cv.split(features, labels): 
         features_train = []
         features_test  = []
         labels_train   = []
